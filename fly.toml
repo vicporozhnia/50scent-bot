@@ -1,0 +1,13 @@
+[build]
+
+[processes]
+  app = "python3 bot.py"
+
+[[mounts]]
+  source = "data"
+  destination = "/data"
+
+[[vm]]
+  memory = "256mb"
+  cpu_kind = "shared"
+  cpus = 1
