@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(BOT_TOKEN=test python3 -c \":*)"
+    ]
+  }
+}
