@@ -1,3 +1,5 @@
+import urllib.parse
+
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup
 from telegram.error import BadRequest
 from telegram.ext import ContextTypes, ConversationHandler
@@ -34,6 +36,7 @@ def _wishlist_keyboard(rows: list, page: int) -> InlineKeyboardMarkup:
         nav.append(InlineKeyboardButton("➡️", callback_data=f"wl:list:{page + 1}"))
     if total_pages > 1:
         buttons.append(nav)
+    buttons.append([InlineKeyboardButton("📤 Поділитися списком", callback_data="wls:")])
     return InlineKeyboardMarkup(buttons)
 
 
@@ -142,6 +145,28 @@ async def wishlist_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await query.answer("Додано до вішлісту 💝", show_alert=False)
             else:
                 await query.answer("Аромат не знайдено в каталозі 😔", show_alert=True)
+        return
+
+    # Share wishlist: wls:
+    if data == "wls:":
+        rows = _get_wishlist(query.from_user.id)
+        if not rows:
+            await query.answer("Вішліст порожній 🥲", show_alert=True)
+            return
+        lines = ["💝 Мій вішліст:"]
+        for i, (_, _, brand, name) in enumerate(rows, 1):
+            lines.append(f"{i}. {brand} — {name}")
+        share_text = "\n".join(lines)
+        bot_username = context.bot.username
+        share_url = (
+            f"https://t.me/share/url"
+            f"?url=https://t.me/{bot_username}"
+            f"&text={urllib.parse.quote(share_text)}"
+        )
+        markup = InlineKeyboardMarkup([
+            [InlineKeyboardButton("📤 Надіслати контакту", url=share_url)],
+        ])
+        await query.message.reply_text(share_text, reply_markup=markup)
         return
 
     # Wishlist item detail: wl:{wl_id}:{page}

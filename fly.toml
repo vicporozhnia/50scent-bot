@@ -1,4 +1,5 @@
-[build]
+app = '50scent-bot'
+primary_region = 'gru'
 
 [processes]
   app = "python3 bot.py"

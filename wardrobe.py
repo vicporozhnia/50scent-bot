@@ -1,3 +1,5 @@
+import urllib.parse
+
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup
 from telegram.error import BadRequest
 from telegram.ext import (
@@ -70,6 +72,7 @@ def _detail_text_and_markup(
     if _no_note(notes):
         buttons.append([InlineKeyboardButton("✏️ Додати нотатку", callback_data=f"wna:{perfume_id}:{back_page}")])
     buttons.append([InlineKeyboardButton("💝 До вішлісту", callback_data=f"wlaw:{perfume_id}:{back_page}")])
+    buttons.append([InlineKeyboardButton("📤 Поділитися", callback_data=f"wps:{perfume_id}:{back_page}")])
     buttons.append([
         InlineKeyboardButton("⬅️ Назад", callback_data=f"wp:list:{back_page}"),
         InlineKeyboardButton("🗑 Видалити", callback_data=f"wpd:{perfume_id}:{back_page}"),
@@ -147,6 +150,34 @@ async def wardrobe_detail_callback(update: Update, context: ContextTypes.DEFAULT
             )
         except BadRequest:
             pass
+        return
+
+    if data.startswith("wps:"):
+        parts = data.split(":")
+        perfume_id = int(parts[1])
+        back_page = int(parts[2]) if len(parts) > 2 else 0
+        cursor.execute(
+            "SELECT brand, name, season, mood, notes FROM user_perfumes WHERE id=? AND user_id=?",
+            (perfume_id, query.from_user.id),
+        )
+        row = cursor.fetchone()
+        if not row:
+            return
+        brand, name, season, mood, notes = row
+        lines = [f"✨ {brand} — {name}", "", f"🌿 Сезон: {season}", f"💫 Настрій: {mood}"]
+        if not _no_note(notes):
+            lines.append(f"\n📝 {notes}")
+        share_text = "\n".join(lines)
+        bot_username = context.bot.username
+        share_url = (
+            f"https://t.me/share/url"
+            f"?url=https://t.me/{bot_username}"
+            f"&text={urllib.parse.quote(share_text)}"
+        )
+        markup = InlineKeyboardMarkup([
+            [InlineKeyboardButton("📤 Надіслати контакту", url=share_url)],
+        ])
+        await query.message.reply_text(share_text, reply_markup=markup)
         return
 
     # Detail card: "wp:{id}:{back_page}"
