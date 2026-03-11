@@ -30,7 +30,15 @@ from catalog import search_handler, search_page_callback, catalog_detail_callbac
 
 async def start(update: Update, context):
     reply_markup = ReplyKeyboardMarkup(MAIN_KEYBOARD, resize_keyboard=True)
-    await update.message.reply_text("Привіт 🌸 Обери дію:", reply_markup=reply_markup)
+    onboarding = (
+        "Привіт 🌸 Ось що я вмію:\n\n"
+        "👗 *Мої аромати* — твій особистий гардероб\\. Додавай парфуми вручну або з каталогу, переглядай і видаляй\\. Ділись карткою окремого аромату з друзями кнопкою 📤\\.\n\n"
+        "🔍 *Пошук* — знаходь аромати в каталозі за назвою, брендом або нотою\\. Додавай у гардероб або вішліст прямо з результатів\\.\n\n"
+        "💝 *Вішліст* — зберігай аромати, які хочеш придбати\\. Переміщуй до гардеробу одним натисканням\\. Ділись усім списком бажань кнопкою 📤\\.\n\n"
+        "✍️ *Ввести вручну* — додай аромат із власної колекції: бренд, назва, сезон, настрій та нотатка\\.\n\n"
+        "🔄 *Перезапустити бот* — якщо щось пішло не так\\."
+    )
+    await update.message.reply_text(onboarding, parse_mode="MarkdownV2", reply_markup=reply_markup)
 
 
 # ---------- RESTART ----------
