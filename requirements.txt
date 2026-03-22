@@ -1,4 +1,6 @@
 python-telegram-bot==22.6
+fastapi==0.115.12
+uvicorn==0.34.0
 pandas==3.0.1
 requests==2.32.5
 openpyxl==3.1.5
